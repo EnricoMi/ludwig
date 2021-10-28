@@ -44,7 +44,7 @@ def collect_activations(
         batch_size: int = 128,
         output_directory: str = 'results',
         gpus: List[str] = None,
-        gpu_memory_limit: int =None,
+        gpu_memory_limit: int = None,
         allow_parallel_threads: bool = True,
         callbacks: List[Callback] = None,
         backend: Union[Backend, str] = None,
@@ -198,18 +198,16 @@ def print_model_summary(
     :return: (`None`)
     """
     model = LudwigModel.load(model_path)
-    collected_tensors = model.collect_weights()
-    names = [name for name, w in collected_tensors]
+    # TODO(justin): Enable when torchsummary supports dict inputs.
+    # https://pypi.org/project/torch-summary/
+    # torchsummary.summary(model.model, model.model.get_model_inputs(training=False))
 
-    keras_model = model.model.get_connected_model(training=False)
-    keras_model.summary()
+    print('\nModel children:\n')
+    for name, _ in model.model.named_children():
+        print(name)
 
-    print('\nLayers:\n')
-    for layer in keras_model.layers:
-        print(layer.name)
-
-    print('\nWeights:\n')
-    for name in names:
+    print('\nParameters:\n')
+    for name, _ in model.model.named_parameters():
         print(name)
 
 
@@ -280,8 +278,6 @@ def cli_collect_activations(sys_argv):
         nargs='+',
         required=True
     )
-
-
 
     # -------------------------
     # Output results parameters
